@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ main, master ]
 
+# Добавляем разрешения для GitHub Actions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -28,13 +34,10 @@ jobs:
       env:
         NODE_ENV: production
         
-    - name: Export static files
-      run: npm run export
-      
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./out
-        cname: your-domain.com # Замените на ваш домен если есть 
+        # cname: your-domain.com # Замените на ваш домен если есть 
