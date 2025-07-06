@@ -175,28 +175,11 @@ function GLBCarModel({
           // Специальная логика для BMW i8 - если название модели содержит bmw_i8, применяем цвет более избирательно
           const isBMWi8 = modelPath.toLowerCase().includes('bmw_i8') || modelPath.toLowerCase().includes('bmw i8');
           
-          // Для BMW i8 - используем белый список: красим только определённые части корпуса
+          // Для BMW i8 - используем мягкий подход: красим все что не исключено
           if (isBMWi8) {
-            const allowedBodyParts = (
-              isBodyPart || 
-              childName.includes('body') || childName.includes('paint') ||
-              childName.includes('door') || childName.includes('hood') ||
-              childName.includes('roof') || childName.includes('trunk') ||
-              childName.includes('fender') || childName.includes('bumper') ||
-              childName.includes('quarter') || childName.includes('panel') ||
-              childName.includes('side') || childName.includes('wing') ||
-              childName.includes('outer') || childName.includes('exterior') ||
-              childName.includes('surface') || childName.includes('skin') ||
-              childName.includes('cowl') || childName.includes('apron') ||
-              childName.includes('spoiler') || childName.includes('lip') ||
-              materialName.includes('body') || materialName.includes('paint') ||
-              materialName.includes('exterior') || materialName.includes('shell') ||
-              materialName.includes('surface') || materialName.includes('skin') ||
-              materialName.includes('outer') || materialName.includes('cowl')
-            );
-            
-            if (allowedBodyParts && !excludePart && child.material) {
-              // Применяем цвет только к разрешенным частям корпуса BMW i8
+            if (!excludePart && child.material) {
+              // Применяем цвет к частям BMW i8, исключая только то что точно не должно краситься
+              console.log(`BMW i8: Applying color to "${childName}" with material "${materialName}"`); // Дебаг для понимания что красится
               const applyColorToMaterial = (mat: THREE.MeshStandardMaterial) => {
                 const originalColor = originalMaterials.get(mat);
                 if (originalColor) {
