@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { 
   CheckCircle, 
   Car, 
-  ArrowRight, 
   Phone, 
   Mail,
   Home,
