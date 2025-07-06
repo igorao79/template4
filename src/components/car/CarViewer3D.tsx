@@ -119,13 +119,21 @@ function GLBCarModel({
             childName.includes('bumper') ||
             childName.includes('fender') ||
             childName.includes('quarter') ||
+            childName.includes('side') ||
+            childName.includes('front') ||
+            childName.includes('rear') ||
+            childName.includes('carbon') ||
+            childName.includes('exterior') ||
+            childName.includes('shell') ||
             materialName.includes('body') || 
             materialName.includes('paint') ||
             materialName.includes('car') ||
-            materialName.includes('exterior')
+            materialName.includes('exterior') ||
+            materialName.includes('carbon') ||
+            materialName.includes('shell')
           );
           
-          // Для BMW i8 и других сложных моделей - попробуем изменить все материалы кроме исключений
+          // Для BMW i8 и других сложных моделей - строгий список исключений
           const excludePart = (
             childName.includes('light') || childName.includes('lamp') || 
             childName.includes('glass') || childName.includes('window') || 
@@ -133,7 +141,10 @@ function GLBCarModel({
             childName.includes('rim') || childName.includes('chrome') || 
             childName.includes('metal') || childName.includes('trim') || 
             childName.includes('badge') || childName.includes('logo') || 
-            childName.includes('grille') || 
+            childName.includes('grille') || childName.includes('grill') ||
+            childName.includes('radiator') || childName.includes('cooling') ||
+            childName.includes('vent') || childName.includes('intake') ||
+            childName.includes('exhaust') || childName.includes('pipe') ||
             childName.includes('mirror') || childName.includes('handle') || 
             childName.includes('interior') || childName.includes('seat') || 
             childName.includes('dashboard') || childName.includes('steering') ||
@@ -142,32 +153,63 @@ function GLBCarModel({
             childName.includes('fog') || childName.includes('turn') ||
             childName.includes('signal') || childName.includes('running') ||
             childName.includes('daytime') || childName.includes('drl') ||
+            childName.includes('engine') || childName.includes('motor') ||
+            childName.includes('suspension') || childName.includes('shock') ||
+            childName.includes('spring') || childName.includes('caliper') ||
+            childName.includes('rotor') || childName.includes('disc') ||
+            childName.includes('underhood') || childName.includes('undercarriage') ||
+            childName.includes('frame') || childName.includes('chassis') ||
+            childName.includes('axle') || childName.includes('shaft') ||
             materialName.includes('light') || materialName.includes('glass') ||
             materialName.includes('chrome') || materialName.includes('metal') ||
             materialName.includes('tire') || materialName.includes('wheel') ||
             materialName.includes('lamp') || materialName.includes('led') ||
-            materialName.includes('headlight') || materialName.includes('taillight')
+            materialName.includes('headlight') || materialName.includes('taillight') ||
+            materialName.includes('grille') || materialName.includes('grill') ||
+            materialName.includes('radiator') || materialName.includes('cooling') ||
+            materialName.includes('vent') || materialName.includes('intake') ||
+            materialName.includes('exhaust') || materialName.includes('engine') ||
+            materialName.includes('brake') || materialName.includes('caliper')
           );
           
           // Специальная логика для BMW i8 - если название модели содержит bmw_i8, применяем цвет более избирательно
           const isBMWi8 = modelPath.toLowerCase().includes('bmw_i8') || modelPath.toLowerCase().includes('bmw i8');
           
-          // Для BMW i8 - используем только явные кузовные части
+          // Для BMW i8 - используем белый список: красим только определённые части корпуса
           if (isBMWi8) {
-            if (isBodyPart && !excludePart && child.material) {
+            const allowedBodyParts = (
+              isBodyPart || 
+              childName.includes('body') || childName.includes('paint') ||
+              childName.includes('door') || childName.includes('hood') ||
+              childName.includes('roof') || childName.includes('trunk') ||
+              childName.includes('fender') || childName.includes('bumper') ||
+              childName.includes('quarter') || childName.includes('panel') ||
+              childName.includes('side') || childName.includes('wing') ||
+              childName.includes('outer') || childName.includes('exterior') ||
+              childName.includes('surface') || childName.includes('skin') ||
+              childName.includes('cowl') || childName.includes('apron') ||
+              childName.includes('spoiler') || childName.includes('lip') ||
+              materialName.includes('body') || materialName.includes('paint') ||
+              materialName.includes('exterior') || materialName.includes('shell') ||
+              materialName.includes('surface') || materialName.includes('skin') ||
+              materialName.includes('outer') || materialName.includes('cowl')
+            );
+            
+            if (allowedBodyParts && !excludePart && child.material) {
+              // Применяем цвет только к разрешенным частям корпуса BMW i8
               const applyColorToMaterial = (mat: THREE.MeshStandardMaterial) => {
                 const originalColor = originalMaterials.get(mat);
                 if (originalColor) {
                   const newColor = new THREE.Color(color);
                   
-                  // Умеренная смена цвета для BMW i8
-                  const blendStrength = 0.7;
+                  // Более агрессивная смена цвета для BMW i8
+                  const blendStrength = 0.9;
                   mat.color.lerpColors(originalColor, newColor, blendStrength);
                   mat.needsUpdate = true;
                 } else {
-                  // Если нет оригинального цвета, применяем приглушенный вариант
+                  // Если нет оригинального цвета, применяем яркий вариант
                   const newColor = new THREE.Color(color);
-                  newColor.multiplyScalar(0.8); // Приглушаем цвет на 20%
+                  newColor.multiplyScalar(0.95); // Слегка приглушаем цвет на 5%
                   mat.color.set(newColor);
                   mat.needsUpdate = true;
                 }
