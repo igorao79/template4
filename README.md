@@ -1,36 +1,184 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚗 AutoDealer - Премиальные автомобили
 
-## Getting Started
+Современный лендинг для продажи автомобилей, построенный на Next.js 14 с использованием TypeScript, Tailwind CSS, Zustand и shadcn/ui.
 
-First, run the development server:
+## ✨ Особенности
+
+- **Современный дизайн** - Адаптивный интерфейс с использованием Tailwind CSS
+- **Управление состоянием** - Zustand для корзины и аутентификации
+- **Типизация** - Полная типизация с TypeScript
+- **Компоненты** - Готовые компоненты shadcn/ui
+- **3D модели** - Поддержка 3D моделей автомобилей
+- **Mobile-first** - Адаптивный дизайн для всех устройств
+
+## 🛠 Технологии
+
+- **Next.js 14** - React фреймворк с App Router
+- **TypeScript** - Строгая типизация
+- **Tailwind CSS** - Utility-first CSS фреймворк
+- **Zustand** - Легковесное управление состоянием
+- **shadcn/ui** - Готовые компоненты
+- **Lucide React** - Иконки
+- **Three.js** - 3D графика (для будущих 3D моделей)
+
+## 📦 Установка
 
 ```bash
+# Клонирование репозитория
+git clone <repository-url>
+cd car
+
+# Установка зависимостей
+npm install
+
+# Запуск в режиме разработки
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Проект будет доступен по адресу [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🏗 Структура проекта
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── layout.tsx         # Основной лейаут
+│   └── page.tsx           # Главная страница
+├── components/            # Компоненты
+│   ├── ui/                # shadcn/ui компоненты
+│   ├── layout/            # Лейаут компоненты
+│   │   └── Header.tsx     # Хедер с навигацией
+│   ├── hero/              # Героическая секция
+│   │   └── Hero.tsx       # Главный баннер
+│   ├── car/               # Компоненты автомобилей
+│   │   └── CarCard.tsx    # Карточка автомобиля
+│   ├── cart/              # Корзина
+│   ├── auth/              # Аутентификация
+│   └── footer/            # Футер
+│       └── Footer.tsx     # Подвал сайта
+├── stores/                # Zustand хранилища
+│   ├── cart.ts            # Корзина покупок
+│   └── auth.ts            # Аутентификация
+├── types/                 # TypeScript типы
+│   └── index.ts           # Основные типы
+└── utils/                 # Утилиты
+```
 
-## Learn More
+## 🎨 Компоненты
 
-To learn more about Next.js, take a look at the following resources:
+### Основные компоненты:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Header** - Навигация с корзиной и авторизацией
+- **Hero** - Главный баннер с поиском
+- **CarCard** - Карточка автомобиля
+- **Footer** - Подвал с контактами
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Zustand Stores:
 
-## Deploy on Vercel
+- **CartStore** - Управление корзиной покупок
+- **AuthStore** - Управление аутентификацией
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Функциональность
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Реализовано:
+- ✅ Адаптивный дизайн
+- ✅ Навигация с мобильным меню
+- ✅ Поиск автомобилей
+- ✅ Корзина покупок
+- ✅ Аутентификация пользователей
+- ✅ Карточки автомобилей
+- ✅ Отзывчивый интерфейс
+
+### Планируется:
+- 🔄 Каталог автомобилей
+- 🔄 Детальные страницы автомобилей
+- 🔄 Интеграция с 3D моделями
+- 🔄 Система фильтрации
+- 🔄 Онлайн-платежи
+- 🔄 Административная панель
+
+## 🎯 Использование
+
+### Добавление автомобиля в корзину:
+
+```typescript
+import { useCartStore } from '@/stores/cart';
+
+const { addToCart } = useCartStore();
+
+// Добавить автомобиль
+addToCart(car, 1, { color: 'red' });
+```
+
+### Аутентификация:
+
+```typescript
+import { useAuthStore } from '@/stores/auth';
+
+const { login, logout, user } = useAuthStore();
+
+// Войти в систему
+await login('test@example.com', 'password');
+
+// Выйти
+logout();
+```
+
+## 🔧 Настройка
+
+### Переменные окружения:
+
+Создайте файл `.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+### Настройка Tailwind:
+
+Конфигурация находится в `tailwind.config.js`. Все переменные цветов настроены в `globals.css`.
+
+## 📱 Адаптивность
+
+Проект следует принципу Mobile-First:
+
+- **320px+** - Мобильные устройства
+- **768px+** - Планшеты
+- **1024px+** - Ноутбуки
+- **1440px+** - Десктопы
+
+## 🧪 Тестирование
+
+```bash
+# Запуск линтера
+npm run lint
+
+# Сборка проекта
+npm run build
+
+# Запуск в продакшене
+npm start
+```
+
+## 🤝 Вклад в проект
+
+1. Форкните репозиторий
+2. Создайте ветку для функции (`git checkout -b feature/AmazingFeature`)
+3. Коммитьте изменения (`git commit -m 'Add some AmazingFeature'`)
+4. Пушьте в ветку (`git push origin feature/AmazingFeature`)
+5. Откройте Pull Request
+
+## 📄 Лицензия
+
+Этот проект лицензирован под MIT License.
+
+## 📞 Контакты
+
+- **Email**: info@autodealer.ru
+- **Телефон**: +7 (999) 123-45-67
+- **Адрес**: г. Москва, ул. Автомобильная, д. 123
+
+---
+
+Сделано с ❤️ для AutoDealer
