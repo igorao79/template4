@@ -30,7 +30,7 @@ export const mockCars: Car[] = [
       'Харман Кардон аудиосистема',
       'Адаптивный круиз-контроль'
     ],
-    model3d: '/models/2019_bmw_i8_roadster.glb',
+    model3d: '/template4/models/2019_bmw_i8_roadster.glb',
     isNew: false,
     isAvailable: true,
     tags: ['спорткар', 'гибрид', 'люкс', 'BMW', 'родстер']
@@ -64,7 +64,7 @@ export const mockCars: Car[] = [
       'Система активного выхлопа',
       'Историческая ливрея'
     ],
-    model3d: '/models/2024_aston_martin_valour.glb',
+    model3d: '/template4/models/2024_aston_martin_valour.glb',
     isNew: true,
     isAvailable: true,
     tags: ['эксклюзив', 'коллекционный', 'V12', 'Aston Martin', 'лимитированная серия']
@@ -98,7 +98,7 @@ export const mockCars: Car[] = [
       'Премиальная аудиосистема',
       'Спортивные ковши Sparco'
     ],
-    model3d: '/models/2023_hennessey_venom_f5_roadster.glb',
+    model3d: '/template4/models/2023_hennessey_venom_f5_roadster.glb',
     isNew: true,
     isAvailable: true,
     tags: ['гиперкар', 'рекорд скорости', 'эксклюзив', 'Hennessey', 'родстер']
@@ -132,7 +132,7 @@ export const mockCars: Car[] = [
       'Виртуальная ветрозащита',
       'Эксклюзивный дизайн'
     ],
-    model3d: '/models/2019_ferrari_monza_sp1.glb',
+    model3d: '/template4/models/2019_ferrari_monza_sp1.glb',
     isNew: false,
     isAvailable: true,
     tags: ['спидстер', 'лимитированная серия', 'V12', 'Ferrari', 'коллекционный']
