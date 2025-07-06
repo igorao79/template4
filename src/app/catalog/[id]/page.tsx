@@ -1,10 +1,6 @@
-'use client';
-
-import { use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,15 +15,22 @@ import {
   Users, 
   Gauge 
 } from 'lucide-react';
-import { getCarById } from '@/utils/mockData';
+import { getCarById, mockCars } from '@/utils/mockData';
 import CarViewer3D from '@/components/car/CarViewer3D';
 
 interface CarDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function CarDetailPage({ params }: CarDetailPageProps) {
-  const { id } = use(params);
+// Генерируем статические параметры для всех автомобилей
+export async function generateStaticParams() {
+  return mockCars.map((car) => ({
+    id: car.id,
+  }));
+}
+
+export default async function CarDetailPage({ params }: CarDetailPageProps) {
+  const { id } = await params;
   const car = getCarById(id);
   
   if (!car) {
@@ -43,34 +46,19 @@ export default function CarDetailPage({ params }: CarDetailPageProps) {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen bg-gray-50"
-    >
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Breadcrumb */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex items-center gap-2 mb-4 sm:mb-6"
-        >
+        <div className="flex items-center gap-2 mb-4 sm:mb-6">
           <Link href="/catalog" className="flex items-center gap-2 text-sm sm:text-base text-gray-600 hover:text-gray-900 transition-colors">
             <ArrowLeft className="h-4 w-4" />
             Назад к каталогу
           </Link>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           {/* Левая колонка - 3D просмотр */}
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-4 sm:space-y-6"
-          >
+          <div className="space-y-4 sm:space-y-6">
             <CarViewer3D
               carName={`${car.brand} ${car.model}`}
               modelPath={car.model3d}
@@ -114,15 +102,10 @@ export default function CarDetailPage({ params }: CarDetailPageProps) {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Правая колонка - Информация */}
-          <motion.div 
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-4 sm:space-y-6"
-          >
+          <div className="space-y-4 sm:space-y-6">
             {/* Основная информация */}
             <Card>
               <CardHeader>
@@ -201,39 +184,57 @@ export default function CarDetailPage({ params }: CarDetailPageProps) {
                     <Share2 className="h-4 w-4" />
                   </Button>
                 </div>
+
+                {/* Статус доступности */}
+                <div className="flex items-center gap-2 text-xs sm:text-sm">
+                  <div className={`w-2 h-2 rounded-full ${car.isAvailable ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span className={car.isAvailable ? 'text-green-600' : 'text-red-600'}>
+                    {car.isAvailable ? 'В наличии' : 'Продано'}
+                  </span>
+                </div>
               </CardContent>
             </Card>
 
-            {/* Характеристики */}
+            {/* Технические характеристики */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Характеристики</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Технические характеристики</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 sm:space-y-3">
-                  <div className="flex justify-between py-1 sm:py-2 border-b border-gray-100">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <span className="text-xs sm:text-sm text-gray-600">Двигатель</span>
-                    <span className="font-medium text-xs sm:text-sm">{car.specifications.engine}</span>
+                    <span className="text-xs sm:text-sm font-medium">{car.specifications.engine}</span>
                   </div>
-                  <div className="flex justify-between py-1 sm:py-2 border-b border-gray-100">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <span className="text-xs sm:text-sm text-gray-600">Мощность</span>
-                    <span className="font-medium text-xs sm:text-sm">{car.specifications.horsepower} л.с.</span>
+                    <span className="text-xs sm:text-sm font-medium">{car.specifications.horsepower} л.с.</span>
                   </div>
-                  <div className="flex justify-between py-1 sm:py-2 border-b border-gray-100">
-                    <span className="text-xs sm:text-sm text-gray-600">КПП</span>
-                    <span className="font-medium text-xs sm:text-sm">{car.specifications.transmission}</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-xs sm:text-sm text-gray-600">Коробка передач</span>
+                    <span className="text-xs sm:text-sm font-medium">{car.specifications.transmission}</span>
                   </div>
-                  <div className="flex justify-between py-1 sm:py-2 border-b border-gray-100">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-xs sm:text-sm text-gray-600">Тип топлива</span>
+                    <span className="text-xs sm:text-sm font-medium">{car.specifications.fuelType}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <span className="text-xs sm:text-sm text-gray-600">Привод</span>
-                    <span className="font-medium text-xs sm:text-sm">{car.specifications.drivetrain}</span>
+                    <span className="text-xs sm:text-sm font-medium">{car.specifications.drivetrain}</span>
                   </div>
-                  <div className="flex justify-between py-1 sm:py-2 border-b border-gray-100">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-xs sm:text-sm text-gray-600">Количество мест</span>
+                    <span className="text-xs sm:text-sm font-medium">{car.specifications.seating}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <span className="text-xs sm:text-sm text-gray-600">Цвет</span>
-                    <span className="font-medium text-xs sm:text-sm">{car.specifications.color}</span>
+                    <span className="text-xs sm:text-sm font-medium">{car.specifications.color}</span>
                   </div>
-                  <div className="flex justify-between py-1 sm:py-2">
+                  <div className="flex justify-between items-center py-2">
                     <span className="text-xs sm:text-sm text-gray-600">Пробег</span>
-                    <span className="font-medium text-xs sm:text-sm">{car.specifications.mileage.toLocaleString()} км</span>
+                    <span className="text-xs sm:text-sm font-medium">
+                      {car.specifications.mileage.toLocaleString()} км
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -242,21 +243,22 @@ export default function CarDetailPage({ params }: CarDetailPageProps) {
             {/* Особенности */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Особенности и опции</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Особенности и комплектация</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-1 sm:gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   {car.features.map((feature, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs sm:text-sm">
-                      {feature}
-                    </Badge>
+                    <div key={index} className="flex items-center gap-2 text-xs sm:text-sm">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0" />
+                      <span className="text-gray-700">{feature}</span>
+                    </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 } 
