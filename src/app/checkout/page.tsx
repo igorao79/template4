@@ -1,28 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, ArrowRight, CheckCircle, CreditCard, User, MapPin } from 'lucide-react';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
-import { 
-  ArrowLeft, 
-  ArrowRight, 
-  CreditCard, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  User,
-  Calendar,
-  Lock,
-  CheckCircle,
-  AlertCircle
-} from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+
 
 interface FormData {
   personalInfo: {
@@ -52,20 +41,13 @@ const steps = [
 ];
 
 export default function CheckoutPage() {
-  const router = useRouter();
-  const { items, getCartTotal, clearCart } = useCartStore();
-  const { isAuthenticated, user } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(1);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Проверка авторизации
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-  }, [isAuthenticated, router]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  const { cart, getCartTotal } = useCartStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const router = useRouter();
 
   const [formData, setFormData] = useState<FormData>({
     personalInfo: {
@@ -86,16 +68,16 @@ export default function CheckoutPage() {
     },
   });
 
-  // Если пользователь не авторизован, показываем загрузку
+  // Проверка авторизации
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Проверка авторизации...</p>
-        </div>
-      </div>
-    );
+    router.push('/login');
+    return null;
+  }
+
+  // Проверка на пустую корзину
+  if (cart.items.length === 0) {
+    router.push('/catalog');
+    return null;
   }
 
   const validateStep = (step: number) => {
@@ -524,23 +506,25 @@ export default function CheckoutPage() {
                   <CardTitle className="text-xl">Ваш заказ</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {items.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3">
-                      <img
-                        src={item.image}
-                        alt={`${item.brand} ${item.model}`}
+                  {cart.items.map((item) => (
+                    <div key={item.car.id} className="flex items-center gap-3">
+                      <Image
+                        src={item.car.image}
+                        alt={`${item.car.brand} ${item.car.model}`}
                         className="w-16 h-12 object-cover rounded"
+                        width={64}
+                        height={48}
                       />
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-sm truncate">
-                          {item.brand} {item.model}
+                          {item.car.brand} {item.car.model}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {item.year} год
+                          {item.car.year} год
                         </div>
                       </div>
                       <div className="text-sm font-medium">
-                        {formatPrice(item.price)}
+                        {formatPrice(item.car.price)}
                       </div>
                     </div>
                   ))}

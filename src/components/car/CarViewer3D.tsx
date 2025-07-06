@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useRef, useEffect, Component } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Environment, useGLTF, Html } from '@react-three/drei';
+import { OrbitControls, Html, useGLTF } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Palette, RotateCcw, Maximize2, Minimize2, Loader2 } from 'lucide-react';
 
 interface CarViewer3DProps {
-  carId: string;
   carName: string;
   modelPath?: string; // Путь к .glb файлу
   onColorChange?: (color: string) => void;
@@ -21,7 +20,7 @@ class ModelErrorBoundary extends Component<
   { children: React.ReactNode; onError?: () => void },
   { hasError: boolean }
 > {
-  constructor(props: any) {
+  constructor(props: { children: React.ReactNode; onError?: () => void }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -138,15 +137,53 @@ function GLBCarModel({
             childName.includes('mirror') || childName.includes('handle') || 
             childName.includes('interior') || childName.includes('seat') || 
             childName.includes('dashboard') || childName.includes('steering') ||
+            childName.includes('headlight') || childName.includes('taillight') ||
+            childName.includes('indicator') || childName.includes('brake') ||
+            childName.includes('fog') || childName.includes('turn') ||
+            childName.includes('signal') || childName.includes('running') ||
+            childName.includes('daytime') || childName.includes('drl') ||
             materialName.includes('light') || materialName.includes('glass') ||
             materialName.includes('chrome') || materialName.includes('metal') ||
-            materialName.includes('tire') || materialName.includes('wheel')
+            materialName.includes('tire') || materialName.includes('wheel') ||
+            materialName.includes('lamp') || materialName.includes('led') ||
+            materialName.includes('headlight') || materialName.includes('taillight')
           );
           
-          // Специальная логика для BMW i8 - если название модели содержит bmw_i8, применяем цвет более агрессивно
+          // Специальная логика для BMW i8 - если название модели содержит bmw_i8, применяем цвет более избирательно
           const isBMWi8 = modelPath.toLowerCase().includes('bmw_i8') || modelPath.toLowerCase().includes('bmw i8');
           
-          if ((isBodyPart || (isBMWi8 && !excludePart)) && child.material) {
+          // Для BMW i8 - используем только явные кузовные части
+          if (isBMWi8) {
+            if (isBodyPart && !excludePart && child.material) {
+              const applyColorToMaterial = (mat: THREE.MeshStandardMaterial) => {
+                const originalColor = originalMaterials.get(mat);
+                if (originalColor) {
+                  const newColor = new THREE.Color(color);
+                  
+                  // Умеренная смена цвета для BMW i8
+                  const blendStrength = 0.7;
+                  mat.color.lerpColors(originalColor, newColor, blendStrength);
+                  mat.needsUpdate = true;
+                } else {
+                  // Если нет оригинального цвета, применяем приглушенный вариант
+                  const newColor = new THREE.Color(color);
+                  newColor.multiplyScalar(0.8); // Приглушаем цвет на 20%
+                  mat.color.set(newColor);
+                  mat.needsUpdate = true;
+                }
+              };
+
+              if (Array.isArray(child.material)) {
+                child.material.forEach((mat) => {
+                  if (mat instanceof THREE.MeshStandardMaterial) {
+                    applyColorToMaterial(mat);
+                  }
+                });
+              } else if (child.material instanceof THREE.MeshStandardMaterial) {
+                applyColorToMaterial(child.material);
+              }
+            }
+          } else if ((isBodyPart || !excludePart) && child.material) {
             const applyColorToMaterial = (mat: THREE.MeshStandardMaterial) => {
               const originalColor = originalMaterials.get(mat);
               if (originalColor) {
@@ -158,8 +195,7 @@ function GLBCarModel({
                 } else if (color === '#ffffff') {
                   mat.color.setHex(0xf8f8f8); // Немного не белый для лучшего отображения
                 } else {
-                  // Для BMW i8 и других сложных моделей - более сильное воздействие цвета
-                  const blendStrength = isBMWi8 ? 0.9 : 0.8;
+                  const blendStrength = 0.8;
                   mat.color.lerpColors(originalColor, newColor, blendStrength);
                 }
                 mat.needsUpdate = true;
@@ -191,7 +227,7 @@ function GLBCarModel({
 
   return (
     <group ref={meshRef} position={[0, -1, 0]}>
-      <primitive object={gltf.scene} scale={[50, 50, 50]} />
+      <primitive object={gltf.scene} scale={[250, 250, 250]} />
     </group>
   );
 }
@@ -232,20 +268,26 @@ const availableColors = [
   { name: 'Золотой', value: '#D97706' },
 ];
 
-const CarViewer3D: React.FC<CarViewer3DProps> = ({ carId, carName, modelPath, onColorChange }) => {
+const CarViewer3D: React.FC<CarViewer3DProps> = ({ carName, modelPath, onColorChange }) => {
   const [selectedColor, setSelectedColor] = useState('#DC2626');
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [modelError, setModelError] = useState(false);
   const [hasModel, setHasModel] = useState(false);
-  const orbitControlsRef = useRef<any>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const orbitControlsRef = useRef<any>(null);
 
   // Проверяем, есть ли модель
   useEffect(() => {
     if (modelPath) {
       setHasModel(true);
       setModelError(false);
+      // Начинаем загрузку с небольшой задержкой чтобы страница успела отобразиться
+      setTimeout(() => {
+        setIsLoading(true);
+        setLoadingProgress(0);
+      }, 100);
     } else {
       setHasModel(false);
       setIsLoading(false);
@@ -372,7 +414,6 @@ const CarViewer3D: React.FC<CarViewer3DProps> = ({ carId, carName, modelPath, on
                   position={[10, 10, 10]}
                   intensity={1}
                   castShadow
-                  shadow-mapSize={[1024, 1024]}
                 />
                 <spotLight
                   position={[5, 8, 5]}
@@ -398,8 +439,6 @@ const CarViewer3D: React.FC<CarViewer3DProps> = ({ carId, carName, modelPath, on
                     </div>
                   </Html>
                 )}
-                
-                <Environment preset="city" />
                 
                 <OrbitControls
                   ref={orbitControlsRef}

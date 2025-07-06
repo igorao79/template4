@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { useCartStore } from '@/stores/cart';
+import { useAuthStore } from '@/stores/auth';
 import { 
   Menu, 
   X,
@@ -13,11 +16,15 @@ import {
   Mail,
   MapPin,
   User,
-  LogIn
+  LogIn,
+  LogOut
 } from 'lucide-react';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+  const { cart } = useCartStore();
+  const { isAuthenticated, user, logout } = useAuthStore();
 
   const navigationItems = [
     { name: 'Главная', href: '/' },
@@ -36,8 +43,35 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleCartClick = () => {
+    if (isAuthenticated) {
+      router.push('/cart');
+    } else {
+      router.push('/login');
+    }
+  };
+
+  const handleProfileClick = () => {
+    if (isAuthenticated) {
+      // В будущем можно добавить страницу профиля
+      router.push('/profile');
+    } else {
+      router.push('/login');
+    }
+  };
+
+  const handleAuthClick = () => {
+    if (isAuthenticated) {
+      logout();
+    } else {
+      router.push('/login');
+    }
+  };
+
+  const cartItemsCount = cart.items.reduce((total, item) => total + item.quantity, 0);
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="fixed top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Logo */}
@@ -71,28 +105,37 @@ const Header = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" size="sm" className="relative">
+            <Button variant="ghost" size="sm" className="relative" onClick={handleCartClick}>
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
+                {cartItemsCount}
               </span>
             </Button>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" size="sm" className="gap-2" onClick={handleProfileClick}>
               <User className="h-4 w-4" />
-              Профиль
+              {isAuthenticated ? user?.name || 'Профиль' : 'Профиль'}
             </Button>
-            <Button size="sm" className="gap-2">
-              <LogIn className="h-4 w-4" />
-              Войти
+            <Button size="sm" className="gap-2" onClick={handleAuthClick}>
+              {isAuthenticated ? (
+                <>
+                  <LogOut className="h-4 w-4" />
+                  Выйти
+                </>
+              ) : (
+                <>
+                  <LogIn className="h-4 w-4" />
+                  Войти
+                </>
+              )}
             </Button>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="relative">
+            <Button variant="ghost" size="sm" className="relative" onClick={handleCartClick}>
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                0
+                {cartItemsCount}
               </span>
             </Button>
             <Button
@@ -166,13 +209,22 @@ const Header = () => {
                 transition={{ delay: 0.6 }}
                 className="flex flex-col gap-3 pt-4 border-t border-gray-200"
               >
-                <Button variant="outline" className="w-full gap-2">
+                <Button variant="outline" className="w-full gap-2" onClick={handleProfileClick}>
                   <User className="h-4 w-4" />
-                  Мой профиль
+                  {isAuthenticated ? user?.name || 'Мой профиль' : 'Мой профиль'}
                 </Button>
-                <Button className="w-full gap-2">
-                  <LogIn className="h-4 w-4" />
-                  Войти в систему
+                <Button className="w-full gap-2" onClick={handleAuthClick}>
+                  {isAuthenticated ? (
+                    <>
+                      <LogOut className="h-4 w-4" />
+                      Выйти из системы
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="h-4 w-4" />
+                      Войти в систему
+                    </>
+                  )}
                 </Button>
               </motion.div>
             </div>

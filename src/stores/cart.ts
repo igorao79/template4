@@ -10,6 +10,7 @@ interface CartState {
   clearCart: () => void;
   isInCart: (carId: string) => boolean;
   getCartItemsCount: () => number;
+  getCartTotal: () => number;
   calculateTotals: () => void;
 }
 
@@ -109,6 +110,11 @@ export const useCartStore = create<CartState>()(
       getCartItemsCount: () => {
         const { cart } = get();
         return cart.items.reduce((total, item) => total + item.quantity, 0);
+      },
+
+      getCartTotal: () => {
+        const { cart } = get();
+        return cart.grandTotal;
       },
 
       calculateTotals: () => {

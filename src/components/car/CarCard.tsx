@@ -1,7 +1,8 @@
 'use client';
 
-import { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -94,13 +95,12 @@ const CarCard = memo(({ car, isWishlist, onToggleWishlist }: CarCardProps) => {
     >
       <Card className="group hover:shadow-lg transition-all duration-300 overflow-hidden h-full flex flex-col">
         <div className="relative">
-          <img
+          <Image
             src={car.image}
             alt={`${car.brand} ${car.model}`}
+            width={400}
+            height={300}
             className="w-full h-40 sm:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              e.currentTarget.src = `https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=300&fit=crop&crop=center`;
-            }}
           />
           
           {/* Badges */}

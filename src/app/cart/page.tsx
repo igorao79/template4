@@ -1,11 +1,13 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCartStore } from '@/stores/cart';
+import { useAuthStore } from '@/stores/auth';
 import { 
   Trash2, 
   ShoppingBag, 
@@ -18,10 +20,17 @@ import {
 import Link from 'next/link';
 
 export default function CartPage() {
+  const { cart, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCartStore();
+  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
-  const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCartStore();
-
+  
   const total = getCartTotal();
+  
+  // Проверка авторизации
+  if (!isAuthenticated) {
+    router.push('/login');
+    return null;
+  }
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU', {
@@ -31,11 +40,25 @@ export default function CartPage() {
     }).format(price);
   };
 
+  const handleIncrement = (carId: string, currentQuantity: number) => {
+    updateQuantity(carId, currentQuantity + 1);
+  };
+
+  const handleDecrement = (carId: string, currentQuantity: number) => {
+    if (currentQuantity > 1) {
+      updateQuantity(carId, currentQuantity - 1);
+    }
+  };
+
+  const handleRemove = (carId: string) => {
+    removeFromCart(carId);
+  };
+
   const handleCheckout = () => {
     router.push('/checkout');
   };
 
-  if (items.length === 0) {
+  if (cart.items.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -89,87 +112,97 @@ export default function CartPage() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Корзина</h1>
-            <p className="text-sm text-gray-600">{items.length} товар(ов)</p>
+            <p className="text-sm text-gray-600">{cart.items.length} товар(ов)</p>
           </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item, index) => (
+            {cart.items.map((item, index) => (
               <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                key={item.car.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card>
-                  <CardContent className="p-4 sm:p-6">
+                <Card className="overflow-hidden">
+                  <CardContent className="p-4">
                     <div className="flex flex-col sm:flex-row gap-4">
-                      {/* Image */}
-                      <div className="w-full sm:w-48 h-32 sm:h-36 bg-gray-100 rounded-lg overflow-hidden">
-                        <img
-                          src={item.image}
-                          alt={`${item.brand} ${item.model}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-
-                      {/* Details */}
-                      <div className="flex-1 space-y-3">
-                        <div>
-                          <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
-                            {item.brand} {item.model}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            {item.year} • {item.specifications.fuelType}
-                          </p>
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {item.features.slice(0, 2).map((feature, i) => (
-                              <Badge key={i} variant="secondary" className="text-xs">
-                                {feature}
-                              </Badge>
-                            ))}
+                      <div className="flex-1">
+                        <div className="flex flex-col sm:flex-row gap-4">
+                          {/* Image */}
+                          <div className="w-full sm:w-48 h-32 sm:h-36 bg-gray-100 rounded-lg overflow-hidden">
+                            <Image
+                              src={item.car.image}
+                              alt={`${item.car.brand} ${item.car.model}`}
+                              width={192}
+                              height={128}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          
+                          {/* Details */}
+                          <div className="flex-1 space-y-2">
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">
+                                {item.car.brand} {item.car.model}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                {item.car.year} год • {item.car.specifications.fuelType}
+                              </p>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-1">
+                              {item.car.features.slice(0, 3).map((feature, i) => (
+                                <Badge key={i} variant="secondary" className="text-xs">
+                                  {feature}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
                         </div>
-
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                          <div className="text-xl sm:text-2xl font-bold text-blue-600">
-                            {formatPrice(item.price)}
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => updateQuantity(item.id, Math.max(0, (item.quantity || 1) - 1))}
-                              >
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                              <span className="w-8 text-center text-sm font-medium">
-                                {item.quantity || 1}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => updateQuantity(item.id, (item.quantity || 1) + 1)}
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
+                      </div>
+                      
+                      {/* Actions */}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => handleDecrement(item.car.id, item.quantity || 1)}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <span className="w-8 text-center">{item.quantity || 1}</span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => handleIncrement(item.car.id, item.quantity || 1)}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <div className="text-lg font-semibold text-gray-900">
+                              {formatPrice(item.car.price * (item.quantity || 1))}
                             </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                              onClick={() => removeFromCart(item.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <div className="text-sm text-gray-500">
+                              {formatPrice(item.car.price)} за шт.
+                            </div>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                            onClick={() => handleRemove(item.car.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -193,7 +226,7 @@ export default function CartPage() {
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Товары ({items.length})</span>
+                      <span className="text-gray-600">Товары ({cart.items.length})</span>
                       <span>{formatPrice(total)}</span>
                     </div>
                     <div className="flex justify-between text-sm">

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useCartStore } from './cart';
 
 interface User {
   id: string;
@@ -25,7 +26,7 @@ const usersDatabase: Array<{ id: string; name: string; email: string; password: 
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
@@ -36,12 +37,15 @@ export const useAuthStore = create<AuthState>()(
         // Симуляция запроса к серверу
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        const user = usersDatabase.find(u => u.email === email && u.password === password);
-        
-        if (user) {
-          const { password: _, ...userWithoutPassword } = user;
+        // Упрощенная логика - любой логин/пароль пропускает
+        if (email && password) {
+          const user = {
+            id: Date.now().toString(),
+            name: email.split('@')[0] || 'Пользователь',
+            email: email
+          };
           set({ 
-            user: userWithoutPassword, 
+            user, 
             isAuthenticated: true, 
             isLoading: false 
           });
@@ -76,6 +80,7 @@ export const useAuthStore = create<AuthState>()(
         
         usersDatabase.push(newUser);
         
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password: _, ...userWithoutPassword } = newUser;
         set({ 
           user: userWithoutPassword, 
@@ -88,6 +93,8 @@ export const useAuthStore = create<AuthState>()(
       
       logout: () => {
         set({ user: null, isAuthenticated: false });
+        // Очищаем корзину при выходе
+        useCartStore.getState().clearCart();
       },
     }),
     {

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "export": "next build",
     "lint": "next lint",
     "compress-models": "node scripts/compress-models.js compress",
     "restore-models": "node scripts/compress-models.js restore",

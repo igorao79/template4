@@ -1,28 +1,26 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { use } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import CarViewer3D from '@/components/car/CarViewer3D';
-import { useCartStore } from '@/stores/cart';
-import { getCarById } from '@/utils/mockData';
 import { 
+  ArrowLeft, 
+  ShoppingCart, 
+  Heart, 
+  Share2, 
+  Star, 
   Calendar, 
   Fuel, 
   Users, 
-  Gauge, 
-  Settings, 
-  ShoppingCart, 
-  Check,
-  Star,
-  ArrowLeft,
-  Heart,
-  Share2
+  Gauge 
 } from 'lucide-react';
-import Link from 'next/link';
+import { getCarById } from '@/utils/mockData';
+import CarViewer3D from '@/components/car/CarViewer3D';
 
 interface CarDetailPageProps {
   params: Promise<{ id: string }>;
@@ -31,19 +29,10 @@ interface CarDetailPageProps {
 export default function CarDetailPage({ params }: CarDetailPageProps) {
   const { id } = use(params);
   const car = getCarById(id);
-  const { addToCart, isInCart } = useCartStore();
   
   if (!car) {
     notFound();
   }
-
-  const inCart = isInCart(car.id);
-
-  const handleAddToCart = () => {
-    if (!inCart) {
-      addToCart(car);
-    }
-  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU', {
@@ -82,8 +71,7 @@ export default function CarDetailPage({ params }: CarDetailPageProps) {
             transition={{ duration: 0.8 }}
             className="space-y-4 sm:space-y-6"
           >
-            <CarViewer3D 
-              carId={car.id} 
+            <CarViewer3D
               carName={`${car.brand} ${car.model}`}
               modelPath={car.model3d}
             />
@@ -95,24 +83,32 @@ export default function CarDetailPage({ params }: CarDetailPageProps) {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-2 sm:gap-4">
-                  <img
+                  <Image
                     src={car.image}
                     alt={`${car.brand} ${car.model} - Вид 1`}
+                    width={128}
+                    height={96}
                     className="w-full h-24 sm:h-32 object-cover rounded-lg"
                   />
-                  <img
+                  <Image
                     src={car.image}
                     alt={`${car.brand} ${car.model} - Вид 2`}
+                    width={128}
+                    height={96}
                     className="w-full h-24 sm:h-32 object-cover rounded-lg filter sepia-0 contrast-125"
                   />
-                  <img
+                  <Image
                     src={car.image}
                     alt={`${car.brand} ${car.model} - Вид 3`}
+                    width={128}
+                    height={96}
                     className="w-full h-24 sm:h-32 object-cover rounded-lg filter brightness-110"
                   />
-                  <img
+                  <Image
                     src={car.image}
                     alt={`${car.brand} ${car.model} - Вид 4`}
+                    width={128}
+                    height={96}
                     className="w-full h-24 sm:h-32 object-cover rounded-lg filter saturate-150"
                   />
                 </div>

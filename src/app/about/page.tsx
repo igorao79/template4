@@ -1,8 +1,8 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Award, Users, Shield, Clock, Car, MapPin, Phone, Mail } from 'lucide-react';
 
 const containerVariants = {
@@ -40,19 +40,19 @@ export default function AboutPage() {
       name: 'Александр Иванов',
       position: 'Генеральный директор',
       experience: '15 лет в автомобильной индустрии',
-      photo: '/team/ceo.jpg',
+      photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face',
     },
     {
       name: 'Мария Петрова',
       position: 'Менеджер по продажам',
       experience: '8 лет в продажах премиальных авто',
-      photo: '/team/manager.jpg',
+      photo: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200&h=200&fit=crop&crop=face',
     },
     {
       name: 'Дмитрий Сидоров',
       position: 'Технический эксперт',
       experience: '12 лет в диагностике автомобилей',
-      photo: '/team/expert.jpg',
+      photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&h=200&fit=crop&crop=face',
     },
   ];
 
@@ -159,9 +159,11 @@ export default function AboutPage() {
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
               >
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop"
                   alt="Наш автосалон"
+                  width={600}
+                  height={400}
                   className="w-full h-64 sm:h-80 object-cover rounded-lg shadow-lg"
                 />
               </motion.div>
@@ -263,9 +265,11 @@ export default function AboutPage() {
                 <Card className="text-center hover:shadow-lg transition-shadow">
                   <CardContent className="p-4 sm:p-6">
                     <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-200 rounded-full mx-auto mb-4 overflow-hidden">
-                      <img
-                        src={`https://images.unsplash.com/photo-${1500648767791 + index}-c838f841c0cd?w=200&h=200&fit=crop&crop=face`}
+                      <Image
+                        src={member.photo}
                         alt={member.name}
+                        width={96}
+                        height={96}
                         className="w-full h-full object-cover"
                       />
                     </div>

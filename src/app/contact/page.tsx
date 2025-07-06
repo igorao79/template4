@@ -98,6 +98,31 @@ export default function ContactPage() {
             </Card>
           </motion.div>
         </motion.div>
+
+        {/* Карта */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mt-8 sm:mt-12"
+        >
+          <Card>
+            <CardContent className="p-0">
+              <div className="relative">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2244.426280233899!2d37.61730331592795!3d55.75581998055516!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46b54a50b315e573%3A0xa886bf5a3d9b2e68!2z0KPQu9C40YbQsCDQotCy0LXRgNGB0LrQsNGPLCDQnNC-0YHQutCy0LAsINCg0L7RgdGB0LjRjw!5e0!3m2!1sru!2sru!4v1685123456789!5m2!1sru!2sru"
+                  width="100%"
+                  height="400"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="rounded-lg"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );

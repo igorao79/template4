@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Hero from '@/components/hero/Hero';
 import CarCard from '@/components/car/CarCard';
 import { mockCars } from '@/utils/mockData';
+import { usePageLoader } from '@/contexts/PageLoaderContext';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -28,6 +29,8 @@ const itemVariants = {
 };
 
 export default function Home() {
+  const { isPageReady } = usePageLoader();
+
   return (
     <div>
       <Hero />
@@ -37,7 +40,7 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            whileInView={isPageReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
             className="text-center mb-8 sm:mb-12"
@@ -53,8 +56,7 @@ export default function Home() {
           <motion.div 
             variants={containerVariants}
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
+            animate={isPageReady ? "visible" : "hidden"}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
           >
             {mockCars.slice(0, 8).map((car) => (
@@ -71,7 +73,7 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            whileInView={isPageReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
             className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8"
@@ -79,7 +81,7 @@ export default function Home() {
             <div className="text-center">
               <motion.div 
                 initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
+                whileInView={isPageReady ? { scale: 1 } : { scale: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
                 viewport={{ once: true }}
                 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-600 mb-2"
@@ -93,7 +95,7 @@ export default function Home() {
             <div className="text-center">
               <motion.div 
                 initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
+                whileInView={isPageReady ? { scale: 1 } : { scale: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
                 viewport={{ once: true }}
                 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-600 mb-2"
@@ -107,7 +109,7 @@ export default function Home() {
             <div className="text-center">
               <motion.div 
                 initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
+                whileInView={isPageReady ? { scale: 1 } : { scale: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
                 viewport={{ once: true }}
                 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-600 mb-2"
@@ -121,7 +123,7 @@ export default function Home() {
             <div className="text-center">
               <motion.div 
                 initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
+                whileInView={isPageReady ? { scale: 1 } : { scale: 0 }}
                 transition={{ duration: 0.5, delay: 0.8 }}
                 viewport={{ once: true }}
                 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-600 mb-2"
